@@ -5,7 +5,7 @@ conn = psycopg2.connect(database = "project",
                         password = "Getting Started",
                         port = 5432)
 
-
+# Test
 # Open a cursor to perform database operations
 cur = conn.cursor()
 # Execute a command: create datacamp_courses table
