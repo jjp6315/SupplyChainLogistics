@@ -1,5 +1,35 @@
 import psycopg2
 
+def main():
+    print("Welcome to the PostgreSQL CLI!\n")
+    connection = connect_db()
+    if not connection:
+        print("Connection Failed. Please retry later")
+        return
+
+    while True:
+        print("Please select an option:")
+        print("1. Insert Data")
+        print("2. Delete Data")
+        print("3. Update Data")
+        print("4. Search Data")
+        print("5. Aggregate Functions")
+        print("6. Sorting")
+        print("7. Joins")
+        print("8. Grouping")
+        print("9. Subqueries")
+        print("10. Transactions")
+        print("0. Exit")
+
+        choice = input("Enter your choice (0-10): ")
+
+        if choice == "0":
+            break
+
+        # if choice == "1":
+            
+
+
 def connect_db():
     try:
         conn = psycopg2.connect(database = "project", 
@@ -13,45 +43,8 @@ def connect_db():
         return None
 
 
+def execute_query(connection, query):
+    
 
-
-# # Test
-# # Open a cursor to perform database operations
-# cur = conn.cursor()
-# # Execute a command: create datacamp_courses table
-# #cur.execute("""CREATE TABLE datacamp_courses(
-# #            course_id SERIAL PRIMARY KEY,
-# #            course_name VARCHAR (50) UNIQUE NOT NULL,
-# #            course_instructor VARCHAR (100) NOT NULL,
-# #            topic VARCHAR (20) NOT NULL);
-# #            """)
-# # Make the changes to the database persistent
-# conn.commit()
-# # Close cursor and communication with the database
-# cur.close()
-
-
-# cur = conn.cursor()
-
-# cur.execute("INSERT INTO datacamp_courses(course_name, course_instructor, topic) VALUES('Introduction to SQL','Izzy Weber','Julia')");
-
-# cur.execute("INSERT INTO datacamp_courses(course_name, course_instructor, topic) VALUES('Analyzing Survey Data in Python','EbunOluwa Andrew','Python')");
-
-# cur.execute("INSERT INTO datacamp_courses(course_name, course_instructor, topic) VALUES('Introduction to ChatGPT','James Chapman','Theory')");
-
-# cur.execute("INSERT INTO datacamp_courses(course_name, course_instructor, topic) VALUES('Introduction to Statistics in R','Maggie Matsui','R')");
-
-# cur.execute("INSERT INTO datacamp_courses(course_name, course_instructor, topic) VALUES('Hypothesis Testing in Python','James Chapman','Python')");
-
-# conn.commit()
-# cur.close()
-
-
-
-# cur = conn.cursor()
-# cur.execute('SELECT * FROM datacamp_courses;')
-# rows = cur.fetchall()
-# conn.commit()
-# conn.close()
-# for row in rows:
-#     print(row)
+if __name__ == "__main__":
+    main()
