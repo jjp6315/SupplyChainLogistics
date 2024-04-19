@@ -54,11 +54,11 @@ def main():
 
         table_select = input("Enter your choice (1-11): ")
         if table_select == "1":
-            table_name = "OrderList"
+            table_name = "orderlist"
         elif table_select == "2":
-            table_name = "OrderDetails"
+            table_name = "oderdetail"
         elif table_select == "3":
-            table_name = "FreightRates"
+            table_name = "freighrate"
         elif table_select == "4":
             table_name = "vmicustomers"
         elif table_select == "5":
@@ -590,7 +590,9 @@ def subquery_data(connection, table_name):
 def transaction(connection):
     try:
         # Start the transaction
-        connection.begin()
+        cursor = connection.cursor()
+        cursor.execute("BEGIN")
+
 
         # Prompt user for operations within the transaction
         print("Operations within the transaction:")
@@ -629,9 +631,11 @@ def transaction(connection):
         # If no exceptions occur, commit the transaction
         connection.commit()
         print("Transaction successful.")
+        
 
     except Exception as e:
         connection.rollback()
+       
         print(f"Transaction error: {e}")
 
 
