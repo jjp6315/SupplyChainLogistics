@@ -1,6 +1,5 @@
 import psycopg2
 
-            
 def connect_db():
     try:
         conn = psycopg2.connect(database = "project", 
@@ -12,8 +11,6 @@ def connect_db():
     except Exception as e:
         print(f"Error connecting to database: {e}")
         return None
-    
-
 
 def main():
     print("Welcome to the PostgreSQL CLI!")
@@ -132,8 +129,8 @@ def main():
                 subquery_data(connection, table_name)
             except Exception as e:
                 print(f"Error with subquery: {e}")            
-        # elif choice == "10":
-        #     transaction(connection)
+        elif choice == "10":
+            transaction(connection)
         else:
             print("Invalid choice. Please try again.")
 
@@ -590,32 +587,53 @@ def subquery_data(connection, table_name):
         print(f"Error using subquery: {e}")
 
 
-# def transaction(connection):
-#     """Demonstrates a basic transaction example with error handling."""
-#     try:
-#         # Start a transaction
-#         connection.begin()
+def transaction(connection):
+    try:
+        # Start the transaction
+        connection.begin()
 
-#         # Simulate some database operations within the transaction
-#         # (replace with your actual operations)
-#         print("Performing some database operations within the transaction...")
+        # Prompt user for operations within the transaction
+        print("Operations within the transaction:")
+        print("1. Perform Inserts, Updates, or Deletes")
+        print("2. Rollback the transaction")
+        choice = int(input("Enter your choice (1 or 2): "))
 
-#         # Example database operation that might raise an exception
-#         # (replace with your specific operation)
-#         cursor = connection.cursor()
-#         cursor.execute("INSERT INTO some_table (invalid_column) VALUES ('data')")
+        if choice == 1:
+            # Asks user if they want to insert, update, or delete data
+            print("1. Insert Data")
+            print("2. Update Data")
+            print("3. Delete Data")
+            choice = int(input("Enter your choice (1-3): "))
+            if choice == 1:
+                table_name = input("Enter the table name to insert data: ")
+                insert_data(connection, table_name)
+            elif choice == 2:
+                table_name = input("Enter the table name to update data: ")
+                update_data(connection, table_name)
+            elif choice == 3:
+                table_name = input("Enter the table name to delete data: ")
+                delete_data(connection, table_name)
+            else:
+                print("Invalid choice. Please try again.")
+                connection.rollback()
 
-#         # Commit the transaction if successful
-#         connection.commit()
-#         print("Transaction committed successfully!")
-#     except psycopg2.Error as e:  # Catch database-specific exceptions (psycopg2.Error)
-#         print(f"Error during transaction: {e}")
-#         # Rollback the transaction if an error occurs
-#         connection.rollback()
-#         print("Transaction rolled back.")
-#     except Exception as e:  # Catch more general exceptions
-#         print(f"Unexpected error: {e}")
-#         # Consider additional handling or logging for unexpected errors
+        elif choice == 2:
+            # Rollback the transaction
+            connection.rollback()
+            print("Transaction rolled back.")
+
+        else:
+            print("Invalid choice. Please try again.")
+            connection.rollback()  # Rollback in case of invalid choice
+
+        # If no exceptions occur, commit the transaction
+        connection.commit()
+        print("Transaction successful.")
+
+    except Exception as e:
+        connection.rollback()
+        print(f"Transaction error: {e}")
+
 
 
 if __name__ == "__main__":
