@@ -1,5 +1,20 @@
 import psycopg2
 
+            
+def connect_db():
+    try:
+        conn = psycopg2.connect(database = "project", 
+                        user = "johnpark", 
+                        host= 'localhost',
+                        password = "Getting Started",
+                        port = 5432)
+        return conn
+    except Exception as e:
+        print(f"Error connecting to database: {e}")
+        return None
+    
+
+
 def main():
     print("Welcome to the PostgreSQL CLI!\n")
     connection = connect_db()
@@ -22,6 +37,9 @@ def main():
         print("0. Exit")
 
         choice = input("Enter your choice (0-10): ")
+        if choice == "0":
+            print("Exiting program...")
+            break
 
         print("Please select a table to operate on:")
         print("1. Orders List")
@@ -35,53 +53,55 @@ def main():
         print("9. Carrier")
         print("10. Warehouse Capacity")
         print("11. Warehouse Cost")
+        print("0. Exit")
 
-        table_name = input("Enter your choice (1-11): ")
-        if table_name == "1":
+        table_select = input("Enter your choice (1-11): ")
+        if table_select == "1":
             table_name = "OrderList"
-        elif table_name == "2":
+        elif table_select == "2":
             table_name = "OrderDetails"
-        elif table_name == "3":
+        elif table_select == "3":
             table_name = "FreightRates"
-        elif table_name == "4":
+        elif table_select == "4":
             table_name = "vmicustomers"
-        elif table_name == "5":
+        elif table_select == "5":
             table_name = "customer"
-        elif table_name == "6":
+        elif table_select == "6":
             table_name = "plantports"
-        elif table_name == "7":
+        elif table_select == "7":
             table_name = "productsperplant"
-        elif table_name == "8":
+        elif table_select == "8":
             table_name = "service"
-        elif table_name == "9":
+        elif table_select == "9":
             table_name = "carrier"
-        elif table_name == "10":
+        elif table_select == "10":
             table_name = "whcapacities"
-        elif table_name == "11":
+        elif table_select == "11":
             table_name = "whcosts"
+        elif table_select == "0":
+            print("Exiting program...")
+            break
         else:
             print("Invalid table choice. Please try again.")
             continue
 
-        if choice == "0":
-            print("Exiting program...")
-            break
+        
 
         if choice == "1":
             try:                
                 insert_data(connection, table_name)
             except Exception as e:
                 print(f"Error inserting data: {e}")
-        # elif choice == "2":
-        #     try:
-        #         delete_data(connection, table_name)
-        #     except Exception as e:
-        #         print(f"Error deleting data: {e}")
-        # elif choice == "3":
-        #     try:
-        #         update_data(connection, table_name)
-        #     except Exception as e:
-        #         print(f"Error updating data: {e}")
+        elif choice == "2":
+            try:
+                delete_data(connection, table_name)
+            except Exception as e:
+                print(f"Error deleting data: {e}")
+        elif choice == "3":
+            try:
+                update_data(connection, table_name)
+            except Exception as e:
+                print(f"Error updating data: {e}")
         # elif choice == "4":
         #     try:
         #         search_data(connection, table_name)
@@ -117,29 +137,8 @@ def main():
         else:
             print("Invalid choice. Please try again.")
 
-            
-def connect_db():
-    try:
-        conn = psycopg2.connect(database = "project", 
-                        user = "johnpark", 
-                        host= 'localhost',
-                        password = "Getting Started",
-                        port = 5432)
-        return conn
-    except Exception as e:
-        print(f"Error connecting to database: {e}")
-        return None
-    
-def execute_query(connection, query):
-    try:
-        cursor = connection.cursor()
-        cursor.execute(query)
-        connection.commit()
-        return cursor.fetchall() if query.lower().startswith("select") else None
-    except Exception as e:
-        print(f"Error executing query: {e}")
-        connection.rollback() 
-        return None
+
+
     
 def insert_data(connection, table_name):
     cursor = connection.cursor()
@@ -169,33 +168,76 @@ def insert_data(connection, table_name):
     except Exception as e:
         print(f"Error inserting data: {e}")
 
-# def delete_data(connection, table_name):
-#     """Deletes data from a table using a transaction."""
-#     try:
-#         # Prompt user for deletion criteria and construct DELETE query
-#         delete_criteria = get_deletion_criteria(table_name)  # Replace with your logic to get criteria
-#         delete_query = f"DELETE FROM {table_name} WHERE ..."  # Replace with actual DELETE syntax
-#         delete_query = delete_query.format(**delete_criteria)  # Format query with deletion criteria
+def delete_data(connection, table_name):
+    cursor = connection.cursor()
+    cursor.execute(f"SELECT * FROM {table_name} LIMIT 10;")
+    data = cursor.fetchall()
+    # Print table headers
+    if data:
+        print(f"Preview of the first 10 rows in '{table_name}':")
+        print(*([col.name for col in cursor.description]), sep=", ")  # unpack column names
 
-#         # Use execute_query to execute the query within a transaction
-#         execute_query(connection, delete_query)
-#         print(f"Data deleted from table '{table_name}'.")
-#     except Exception as e:
-#         print(f"Error deleting data: {e}")
+    # Print data rows
+    for row in data:
+        print(*row, sep=", ")  # unpack row values
 
-# def update_data(connection, table_name):
-#     """Updates data in a table using a transaction."""
-#     try:
-#         # Prompt user for update criteria and new data and construct UPDATE query
-#         update_data = get_update_data(table_name)  # Replace with your logic to get update info
-#         update_query = f"UPDATE {table_name} SET ... WHERE ..."  # Replace with actual UPDATE syntax
-#         update_query = update_query.format(**update_data)  # Format query with update data
+    # Prompt user for WHERE clause condition
+    condition = input("Enter the WHERE clause condition (e.g., column_name = 'value')\nLeave blank if you want to go back: ")
+    # Build the DELETE query
+    query = f"""
+        DELETE FROM {table_name}
+        WHERE {condition};
+    """
+    try:
+        cursor.execute(query)
+        connection.commit()
+        print(f"Deletion successful from table '{table_name}'.")
+    except Exception as e:
+        print(f"Error deleting data: {e}")
 
-#         # Use execute_query to execute the query within a transaction
-#         execute_query(connection, update_query)
-#         print(f"Data updated successfully in table '{table_name}'.")
-#     except Exception as e:
-#         print(f"Error updating data: {e}")
+def update_data(connection, table_name):
+    cursor = connection.cursor()
+
+    # Get column names for the table
+    cursor.execute(f"""
+        SELECT column_name 
+        FROM information_schema.columns 
+        WHERE table_name = '{table_name}';
+    """)
+    columns = [row[0] for row in cursor.fetchall()]
+
+    # Prompt user for column to update
+    print("Available columns:")
+    for i, col in enumerate(columns):
+        print(f"{i+1}. {col}")
+    choice = int(input("Enter the number of the column to update: ")) - 1
+    if choice < 0 or choice >= len(columns):
+        print("Invalid choice. Please try again.")
+        return
+
+    column_to_update = columns[choice]
+
+    # Prompt user for new value
+    new_value = input(f"Enter the new value for '{column_to_update}': ")
+
+    # Prompt user for WHERE clause condition
+    condition = input("Enter the WHERE clause condition (e.g., another_column = 'value'): ")
+
+    # Build the UPDATE query
+    query = f"""
+        UPDATE {table_name}
+        SET {column_to_update} = '{new_value}'
+        WHERE {condition};
+    """
+
+    try:
+        cursor.execute(query)
+        connection.commit()
+        print(f"Data updated successfully in table '{table_name}'.")
+    except Exception as e:
+        print(f"Error updating data: {e}")
+
+    
 
 # def search_data(connection, table_name):
 #     """Searches data in a table using a transaction (not strictly necessary)."""
@@ -284,7 +326,16 @@ def insert_data(connection, table_name):
 #         # Consider additional handling or logging for unexpected errors
 
 
-
+# def execute_query(connection, query):
+#     try:
+#         cursor = connection.cursor()
+#         cursor.execute(query)
+#         connection.commit()
+#         return cursor.fetchall() if query.lower().startswith("select") else None
+#     except Exception as e:
+#         print(f"Error executing query: {e}")
+#         connection.rollback() 
+#         return None
 
 
 if __name__ == "__main__":
